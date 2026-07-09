@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rara Laundry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 font-sans min-h-screen text-gray-800">
+
+    <nav class="bg-blue-600 text-white p-4 shadow-lg flex justify-between items-center sticky top-0 z-40">
+        <div class="flex items-center gap-4">
+            <button id="menu-btn" class="hidden text-2xl" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+            <h1 class="text-2xl font-bold"><i class="fa-solid fa-shirt mr-2"></i>Rara Laundry</h1>
+        </div>
+        <div id="auth-buttons">
+            <button onclick="showSection('login-sec')" class="mr-4 font-semibold hover:text-gray-200">Login</button>
+            <button onclick="showSection('register-sec')" class="bg-white text-blue-600 px-4 py-2 rounded-full font-bold shadow hover:bg-gray-100">Register</button>
+        </div>
+        <button id="logout-btn" onclick="logout()" class="hidden bg-red-500 px-4 py-2 rounded shadow"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+    </nav>
+
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-2xl z-50 pt-20 transition-transform transform -translate-x-full">
+        <ul class="space-y-2 px-4">
+            <li><a href="#" onclick="showDashboard('beranda')" class="block p-3 hover:bg-blue-50 rounded"><i class="fa-solid fa-house w-6 text-blue-600"></i> Beranda</a></li>
+            <li><a href="#" onclick="showDashboard('layanan')" class="block p-3 hover:bg-blue-50 rounded"><i class="fa-solid fa-tags w-6 text-blue-600"></i> Penetapan Harga Layanan</a></li>
+            <li><a href="#" onclick="showDashboard('pesanan')" class="block p-3 hover:bg-blue-50 rounded"><i class="fa-solid fa-cart-plus w-6 text-blue-600"></i> Pesanan Aktif</a></li>
+            <li><a href="#" onclick="showDashboard('riwayat')" class="block p-3 hover:bg-blue-50 rounded"><i class="fa-solid fa-clock-rotate-left w-6 text-blue-600"></i> Riwayat Transaksi</a></li>
+            <li><a href="#" onclick="showDashboard('absensi')" class="block p-3 hover:bg-blue-50 rounded"><i class="fa-solid fa-calendar-check w-6 text-blue-600"></i> Absensi Karyawan</a></li>
+            <li><a href="#" onclick="showDashboard('alamat')" class="block p-3 hover:bg-blue-50 rounded"><i class="fa-solid fa-map-location-dot w-6 text-blue-600"></i> Alamat Antar-Jemput</a></li>
+        </ul>
+    </div>
+
+    <div class="container mx-auto p-6" id="main-content">
+        
+        <div id="login-sec" class="hidden max-w-md mx-auto bg-white p-8 rounded-xl shadow-xl mt-10">
+            <h2 class="text-2xl font-bold mb-6 text-center text-blue-600"><i class="fa-solid fa-lock text-3xl block mb-2"></i> Login Sistem</h2>
+            <input type="email" id="log-email" placeholder="Email" class="w-full border p-3 mb-4 rounded focus:ring-2 focus:ring-blue-500 outline-none">
+            <input type="password" id="log-pass" placeholder="Password" class="w-full border p-3 mb-4 rounded focus:ring-2 focus:ring-blue-500 outline-none">
+            <div class="flex items-center mb-6">
+                <input type="checkbox" id="remember-me" class="w-4 h-4 text-blue-600">
+                <label for="remember-me" class="ml-2 text-gray-700">Ingat Saya (30 Hari)</label>
+            </div>
+            <button onclick="login()" class="w-full bg-blue-600 text-white p-3 rounded font-bold shadow hover:bg-blue-700">Masuk</button>
+        </div>
+
+        <div id="register-sec" class="hidden max-w-lg mx-auto bg-white p-8 rounded-xl shadow-xl mt-10">
+            <h2 class="text-2xl font-bold mb-6 text-center text-green-600"><i class="fa-solid fa-user-plus text-3xl block mb-2"></i> Register</h2>
+            <div id="reg-form-step1">
+                <input type="text" id="reg-name" placeholder="Nama Lengkap" class="w-full border p-3 mb-4 rounded">
+                <input type="text" id="reg-phone" placeholder="No HP" class="w-full border p-3 mb-4 rounded">
+                <textarea id="reg-address" placeholder="Alamat" class="w-full border p-3 mb-4 rounded"></textarea>
+                <input type="email" id="reg-email" placeholder="Email Valid" class="w-full border p-3 mb-4 rounded">
+                <input type="password" id="reg-pass" placeholder="Password" class="w-full border p-3 mb-6 rounded">
+                <button onclick="register()" class="w-full bg-green-600 text-white p-3 rounded font-bold hover:bg-green-700">Daftar Akun</button>
+            </div>
+        </div>
+
+        <div id="beranda" class="hidden text-center flex flex-col items-center justify-center rounded-2xl shadow-2xl relative overflow-hidden" style="min-height: 75vh;">
+            <!-- Background Image Layer -->
+            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('bg_laundry.png');"></div>
+            <!-- Overlay to ensure text readability -->
+            <div class="absolute inset-0 bg-blue-100/30 backdrop-blur-sm"></div>
+            <!-- Content Container (Glassmorphism) -->
+            <div class="relative z-10 p-12 bg-white/70 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/60 backdrop-blur-md transform hover:scale-105 transition duration-500">
+                <h2 class="text-5xl font-extrabold text-blue-900 mb-4 drop-shadow-sm"><i class="fa-solid fa-shirt mr-3 text-blue-600"></i>Rara Laundry</h2>
+                <p class="text-xl text-blue-800 font-semibold">Sistem manajemen pesanan dan layanan modern.</p>
+            </div>
+        </div>
+
+        <div id="layanan" class="hidden bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-4"><i class="fa-solid fa-tags text-blue-600 mr-2"></i> Penetapan Harga Layanan</h2>
+            <div class="flex gap-2 mb-4">
+                <input type="text" id="srv-name" placeholder="Nama Layanan" class="border p-2 rounded flex-1">
+                <select id="srv-type" class="border p-2 rounded"><option>Kiloan</option><option>Satuan</option></select>
+                <input type="number" id="srv-price" placeholder="Harga" class="border p-2 rounded w-32">
+                <button onclick="createService()" class="bg-blue-600 text-white px-4 rounded"><i class="fa-solid fa-plus"></i></button>
+            </div>
+            <table class="w-full text-left bg-white border"><tbody id="services-table" class="divide-y"></tbody></table>
+        </div>
+
+        <div id="pesanan" class="hidden bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-4"><i class="fa-solid fa-cart-plus text-blue-600 mr-2"></i> Pesanan Aktif</h2>
+            <div class="grid grid-cols-2 gap-4 mb-4 bg-gray-50 p-4 rounded border">
+                <input type="text" id="cust-name" placeholder="Nama Pelanggan" class="border p-2 rounded col-span-2">
+                <select id="order-service-id" class="border p-2 rounded"></select>
+                <input type="number" id="weight" placeholder="Berat / Qty" class="border p-2 rounded">
+                <div class="col-span-2 flex items-center">
+                    <input type="checkbox" id="is-delivery" class="w-4 h-4 mr-2" onchange="document.getElementById('delivery-fields').classList.toggle('hidden', !this.checked)">
+                    <label for="is-delivery" class="font-bold">Gunakan Layanan Antar Jemput?</label>
+                </div>
+                <div id="delivery-fields" class="hidden col-span-2 grid grid-cols-2 gap-4">
+                    <input type="text" id="cust-phone" placeholder="Nomor Handphone" class="border p-2 rounded">
+                    <textarea id="cust-address" placeholder="Alamat Lengkap" class="border p-2 rounded col-span-2"></textarea>
+                </div>
+                <button onclick="createOrder()" class="bg-green-600 text-white p-2 rounded col-span-2 font-bold">Buat Pesanan</button>
+            </div>
+            <input type="text" id="search-order" placeholder="Cari Nama..." class="w-full border p-2 mb-4 rounded" onkeyup="loadOrders('proses')">
+            <table class="w-full text-left bg-white border">
+                <thead class="bg-gray-800 text-white"><tr><th class="p-2">Antrean</th><th class="p-2">Nama</th><th class="p-2">Layanan</th><th class="p-2">Total</th><th class="p-2">Status</th><th class="p-2">Aksi</th></tr></thead>
+                <tbody id="orders-table" class="divide-y"></tbody>
+            </table>
+        </div>
+
+        <div id="riwayat" class="hidden bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-4"><i class="fa-solid fa-clock-rotate-left text-blue-600 mr-2"></i> Riwayat Transaksi</h2>
+            <div class="flex justify-between items-center mb-4">
+                <input type="text" id="search-riwayat" placeholder="Cari Nama Pelanggan..." class="border p-2 rounded w-2/3" onkeyup="loadRiwayat()">
+                <button id="btn-sabtu" onclick="downloadLaporanSabtu()" class="hidden bg-purple-600 text-white px-4 py-2 rounded font-bold hover:bg-purple-700"><i class="fa-solid fa-download"></i> Laporan Sabtu</button>
+            </div>
+            <table class="w-full text-left bg-white border">
+                <thead class="bg-gray-800 text-white"><tr><th class="p-2">ID Antrean</th><th class="p-2">Nama</th><th class="p-2">Layanan</th><th class="p-2">Total</th><th class="p-2">Status</th><th class="p-2">Aksi</th></tr></thead>
+                <tbody id="riwayat-table" class="divide-y"></tbody>
+            </table>
+        </div>
+
+        <div id="absensi" class="hidden bg-white p-6 rounded-xl shadow-lg text-center">
+            <h2 class="text-2xl font-bold mb-4"><i class="fa-solid fa-calendar-check text-blue-600 mr-2"></i> Absensi Karyawan</h2>
+            
+            <p id="tanggal-hari-ini" class="text-lg font-bold text-gray-700"></p>
+            <p id="status-teks-warna" class="text-2xl font-black mb-6 mt-2 text-gray-400">MEMUAT...</p>
+
+            <div id="absensi-container" class="inline-flex items-center gap-4 bg-gray-50 p-6 rounded-xl border mb-4 shadow-inner">
+                <input type="checkbox" id="chk-absen" onchange="handleCheckIn(this)" class="w-8 h-8 text-green-600 cursor-pointer">
+                <label for="chk-absen" id="lbl-absen" class="text-xl font-bold text-gray-700 cursor-pointer">Memuat status...</label>
+            </div>
+            <p class="text-gray-500 text-sm">*Absensi hanya bisa dicentang satu kali sehari sesuai waktu real-time.</p>
+            
+            <div class="mt-6 bg-blue-50 p-4 rounded-lg inline-block border border-blue-100 shadow">
+                <h3 class="font-bold text-blue-800" id="rekap-bulan">Rekap Bulan Ini</h3>
+                <p class="text-4xl font-extrabold text-blue-600 mt-2"><span id="rekap-hari">0</span> <span class="text-lg font-semibold text-gray-600">Hari Masuk</span></p>
+            </div>
+        </div>
+
+        <div id="alamat" class="hidden bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-4"><i class="fa-solid fa-map-location-dot text-blue-600 mr-2"></i> Data Antar Jemput</h2>
+            <table class="w-full text-left bg-white border">
+                <thead class="bg-gray-800 text-white"><tr><th class="p-2">Pemesan</th><th class="p-2">No HP</th><th class="p-2">Alamat</th><th class="p-2">Aksi</th></tr></thead>
+                <tbody id="alamat-table" class="divide-y"></tbody>
+            </table>
+        </div>
+    </div>
+
+<script>
+    // --- KONFIGURASI API ---
+    // PASTIKAN URL INI SAMA DENGAN HOST BACKEND ANDA
+    const API_URL = "http://127.0.0.1:8000"; 
+    
+    function getToken() { return localStorage.getItem("token") || sessionStorage.getItem("token"); }
+    function getSignature(path) { return CryptoJS.HmacSHA256(path, "rahasia_signature_api").toString(CryptoJS.enc.Hex); }
+    function getHeaders(path) {
+        let h = { "Content-Type": "application/json", "X-Signature": getSignature(path) };
+        if (getToken()) h["Authorization"] = "Bearer " + getToken();
+        return h;
+    }
+
+    // --- NAVIGASI UI ---
+    function showSection(id) {
+        ['login-sec', 'register-sec', 'beranda', 'layanan', 'pesanan', 'riwayat', 'absensi', 'alamat'].forEach(s => document.getElementById(s).classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
+    function toggleSidebar() { document.getElementById("sidebar").classList.toggle("-translate-x-full"); }
+    function showDashboard(panel) {
+        document.getElementById("sidebar").classList.add("-translate-x-full");
+        showSection(panel);
+        if(panel === 'layanan') loadServices();
+        if(panel === 'pesanan') { loadServicesDropdown(); loadOrders('proses'); }
+        if(panel === 'riwayat') { loadRiwayat(); checkSabtu(); }
+        if(panel === 'absensi') loadAbsensiStatus();
+        if(panel === 'alamat') loadAlamat();
+    }
+
+    // Cek Session
+    if(getToken()) {
+        document.getElementById('auth-buttons').classList.add('hidden');
+        document.getElementById('menu-btn').classList.remove('hidden');
+        document.getElementById('logout-btn').classList.remove('hidden');
+        showDashboard('beranda');
+    } else { showSection('login-sec'); }
+
+    // --- LOGIKA AUTH ---
+    async function login() {
+        try {
+            let res = await fetch(`${API_URL}/auth/login`, {
+                method: 'POST', headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ email: document.getElementById('log-email').value, password: document.getElementById('log-pass').value, remember_me: document.getElementById('remember-me').checked })
+            });
+            let data = await res.json();
+            if(res.ok) { 
+                document.getElementById('remember-me').checked ? localStorage.setItem("token", data.access_token) : sessionStorage.setItem("token", data.access_token);
+                location.reload(); 
+            } else alert(data.detail);
+        } catch (e) { alert("Gagal menghubungi server. Pastikan Backend (uvicorn) menyala."); }
+    }
+    
+    async function register() {
+        try {
+            let res = await fetch(`${API_URL}/auth/register`, {
+                method: 'POST', headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ name: document.getElementById('reg-name').value, phone: document.getElementById('reg-phone').value, address: document.getElementById('reg-address').value, email: document.getElementById('reg-email').value, password: document.getElementById('reg-pass').value })
+            });
+            if(res.ok) {
+                alert("Registrasi berhasil! Silakan login.");
+                document.getElementById('log-email').value = document.getElementById('reg-email').value;
+                showSection('login-sec');
+            } else alert((await res.json()).detail);
+        } catch (e) { alert("Server tidak merespons."); }
+    }
+
+    function logout() { localStorage.removeItem("token"); sessionStorage.removeItem("token"); location.reload(); }
+
+    // --- LOGIKA CRUD LAYANAN ---
+    async function loadServices() {
+        try {
+            let res = await fetch(`${API_URL}/services/`, {headers: getHeaders('/services/')});
+            if(!res.ok) throw new Error("Gagal load services");
+            let data = await res.json();
+            if(Array.isArray(data)) {
+                document.getElementById('services-table').innerHTML = data.map(s => `<tr><td class="p-3">${s.name} (${s.type})</td><td class="p-3">Rp${s.price}</td><td class="p-3 text-right"><button onclick="delSrv(${s.id})" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
+            }
+        } catch(e) {
+            document.getElementById('services-table').innerHTML = "<tr><td colspan='3' class='p-4 text-red-500 text-center'>Gagal memuat layanan.</td></tr>";
+        }
+    }
+    async function createService() {
+        await fetch(`${API_URL}/services/`, {method: 'POST', headers: getHeaders('/services/'), body: JSON.stringify({name: document.getElementById('srv-name').value, type: document.getElementById('srv-type').value, price: parseFloat(document.getElementById('srv-price').value)})});
+        loadServices();
+    }
+    async function delSrv(id) { if(confirm("Hapus?")) { await fetch(`${API_URL}/services/${id}`, {method:'DELETE', headers: getHeaders(`/services/${id}`)}); loadServices(); } }
+
+    // --- LOGIKA CRUD PESANAN & LAINNYA ---
+    async function loadServicesDropdown() {
+        try {
+            let res = await fetch(`${API_URL}/services/`, {headers: getHeaders('/services/')});
+            if(!res.ok) throw new Error("Gagal mengambil data dari server");
+            let data = await res.json();
+            if(Array.isArray(data)) {
+                document.getElementById('order-service-id').innerHTML = data.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+            } else {
+                document.getElementById('order-service-id').innerHTML = `<option value="">(Error API)</option>`;
+            }
+        } catch(e) {
+            document.getElementById('order-service-id').innerHTML = `<option value="">(Koneksi Error)</option>`;
+        }
+    }
+
+    async function loadOrders(status) {
+        let search = document.getElementById(status === 'proses' ? 'search-order' : 'search-riwayat').value;
+        try {
+            let res = await fetch(`${API_URL}/orders/?search=${search}&status=${status}`, {headers: getHeaders('/orders/')});
+            if(!res.ok) throw new Error("Gagal mengambil pesanan");
+            let data = await res.json();
+            
+            let html = "<tr><td colspan='6' class='p-4 text-center text-red-500'>Format data tidak valid dari server</td></tr>";
+            if(Array.isArray(data)) {
+                html = data.map(o => `<tr><td class="p-2 font-bold">#${o.queue_number}</td><td class="p-2">${o.customer_name}</td><td class="p-2">${o.services ? o.services.name : ''}</td><td class="p-2">Rp${o.total_price}</td><td class="p-2">${o.status}</td><td class="p-2">
+                    ${status==='proses' ? `<button onclick="updOrd('${o.id}', 'selesai')" class="text-green-500 mr-2" title="Selesaikan Pesanan"><i class="fa-solid fa-check"></i></button>` : ''}
+                    <button onclick="printStruk('${o.id}', '${o.queue_number}', '${o.customer_name}', '${o.services ? o.services.name : ''}', ${o.total_price})" class="text-blue-500 mr-2" title="Cetak Struk"><i class="fa-solid fa-print"></i></button>
+                    <button onclick="delOrd('${o.id}')" class="text-red-500" title="Hapus"><i class="fa-solid fa-trash"></i></button>
+                </td></tr>`).join('');
+                if(data.length === 0) html = "<tr><td colspan='6' class='p-4 text-center text-gray-500'>Tidak ada data pesanan.</td></tr>";
+            }
+            
+            if (status === 'proses') document.getElementById('orders-table').innerHTML = html;
+            else document.getElementById('riwayat-table').innerHTML = html;
+        } catch(e) {
+            let errHtml = "<tr><td colspan='6' class='p-4 text-center text-red-500'>Gagal terhubung ke database. Periksa koneksi backend!</td></tr>";
+            if (status === 'proses') document.getElementById('orders-table').innerHTML = errHtml;
+            else document.getElementById('riwayat-table').innerHTML = errHtml;
+        }
+    }
+    
+    function loadRiwayat() { loadOrders('selesai'); }
+
+    async function createOrder() {
+        let isDeliv = document.getElementById('is-delivery').checked;
+        await fetch(`${API_URL}/orders/`, {
+            method: 'POST', headers: getHeaders('/orders/'), 
+            body: JSON.stringify({ 
+                customer_name: document.getElementById('cust-name').value, 
+                service_id: parseInt(document.getElementById('order-service-id').value), 
+                weight_or_qty: parseFloat(document.getElementById('weight').value), 
+                is_delivery: isDeliv,
+                phone: isDeliv ? document.getElementById('cust-phone').value : null,
+                address: isDeliv ? document.getElementById('cust-address').value : null
+            })
+        });
+        loadOrders('proses');
+        // Reset form
+        document.getElementById('cust-name').value = ''; document.getElementById('weight').value = '';
+        if(isDeliv) { document.getElementById('cust-phone').value = ''; document.getElementById('cust-address').value = ''; }
+    }
+
+    async function updOrd(id, st) { await fetch(`${API_URL}/orders/${id}?status=${st}`, {method:'PUT', headers: getHeaders(`/orders/${id}`)}); loadOrders('proses'); }
+    async function delOrd(id) { if(confirm("Hapus?")) { await fetch(`${API_URL}/orders/${id}`, {method:'DELETE', headers: getHeaders(`/orders/${id}`)}); loadOrders('proses'); loadOrders('selesai'); } }
+
+    function printStruk(id, queue, nama, layanan, total) {
+        let pw = window.open('', '', 'width=400,height=600');
+        pw.document.write(`<html><head><title>Struk #${queue}</title><style>body{font-family:monospace; padding:20px;}</style></head><body>`);
+        pw.document.write(`<h2 style="text-align:center">RARA LAUNDRY</h2><hr>`);
+        pw.document.write(`<p>Antrean : #${queue}<br>Nama    : ${nama}<br>Layanan : ${layanan}<br>Total   : Rp${total}</p>`);
+        pw.document.write(`<hr><p style="text-align:center">Terima Kasih!</p></body></html>`);
+        pw.document.close(); pw.print();
+    }
+
+    // --- ABSENSI & LAPORAN ---
+    async function loadAbsensiStatus() {
+        let today = new Date();
+        document.getElementById('tanggal-hari-ini').innerText = today.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        try {
+            let res = await fetch(`${API_URL}/attendance/status`, {headers: getHeaders('/attendance/status')});
+            if(!res.ok) {
+                document.getElementById('lbl-absen').innerHTML = '<span class="text-red-500">Error! Tabel absensi belum dibuat di Supabase.</span>';
+                document.getElementById('chk-absen').disabled = true;
+                return;
+            }
+            let data = await res.json();
+            let chk = document.getElementById('chk-absen');
+            let lbl = document.getElementById('lbl-absen');
+            let txtWarna = document.getElementById('status-teks-warna');
+
+            if(data.checked_in) {
+                chk.checked = true; chk.disabled = true;
+                lbl.innerHTML = '<span class="text-gray-500">Anda sudah absen hari ini. <i class="fa-solid fa-check text-green-600"></i></span>';
+                txtWarna.innerText = "SUDAH ABSEN";
+                txtWarna.className = "text-2xl font-black mb-6 mt-2 text-green-600 tracking-wide";
+            } else {
+                chk.checked = false; chk.disabled = false;
+                lbl.innerHTML = 'Centang kotak ini untuk absen masuk';
+                txtWarna.innerText = "BELUM ABSEN";
+                txtWarna.className = "text-2xl font-black mb-6 mt-2 text-red-600 tracking-wide";
+            }
+            
+            // Load bulanan
+            let resSum = await fetch(`${API_URL}/attendance/summary`, {headers: getHeaders('/attendance/summary')});
+            if(resSum.ok) {
+                let dataSum = await resSum.json();
+                document.getElementById('rekap-bulan').innerText = `Rekap Bulan ${dataSum.month_name}`;
+                document.getElementById('rekap-hari').innerText = dataSum.total_days;
+            }
+        } catch(e) {
+            document.getElementById('lbl-absen').innerHTML = '<span class="text-red-500">Error: ' + e.message + '</span>';
+        }
+    }
+    
+    async function handleCheckIn(checkbox) {
+        if(checkbox.checked) {
+            checkbox.disabled = true; // Langsung kunci biar ga bisa un-check
+            let res = await fetch(`${API_URL}/attendance/checkin`, {method: 'POST', headers: getHeaders('/attendance/checkin')});
+            if(res.ok) { 
+                loadAbsensiStatus(); // Reload untuk langsung update angka bulanan dan tulisan warna hijau
+            } else { 
+                alert((await res.json()).detail); 
+                checkbox.checked = false; 
+                checkbox.disabled = false;
+            }
+        }
+    }
+
+    function checkSabtu() {
+        if(new Date().getDay() === 6) document.getElementById('btn-sabtu').classList.remove('hidden');
+        else document.getElementById('btn-sabtu').classList.add('hidden');
+    }
+    async function downloadLaporanSabtu() {
+        let res = await fetch(`${API_URL}/reports/saturday`, {headers: getHeaders('/reports/saturday')});
+        if(res.ok) {
+            let blob = await res.blob();
+            let a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = 'laporan_sabtu.csv';
+            document.body.appendChild(a); a.click(); a.remove();
+            alert("Laporan berhasil diunduh dan riwayat transaksi telah dibersihkan.");
+            loadRiwayat();
+        } else alert((await res.json()).detail);
+    }
+
+    // --- ALAMAT ANTAR JEMPUT ---
+    async function loadAlamat() {
+        let data = await (await fetch(`${API_URL}/orders/?status=proses`, {headers: getHeaders('/orders/')})).json();
+        let html = data.filter(o => o.is_delivery).map(o => `<tr><td class="p-2 font-bold">${o.customer_name}</td><td class="p-2">${o.phone||'-'}</td><td class="p-2">${o.address||'-'}</td><td class="p-2"><button onclick="printAlamat('${o.customer_name}','${o.phone}','${o.address}')" class="bg-blue-500 text-white px-2 py-1 rounded"><i class="fa-solid fa-print"></i> Cetak Label</button></td></tr>`).join('');
+        document.getElementById('alamat-table').innerHTML = html;
+    }
+    function printAlamat(nama, hp, alamat) {
+        let pw = window.open('', '', 'width=400,height=400');
+        pw.document.write(`<html><head><title>Label Pengiriman</title><style>body{font-family:monospace; padding:20px; font-size:18px; border:2px solid black;}</style></head><body>`);
+        pw.document.write(`<h2 style="text-align:center; margin-top:0;">LABEL PENGIRIMAN</h2><hr>`);
+        pw.document.write(`<p><strong>Kepada:</strong> ${nama}<br><strong>HP:</strong> ${hp}<br><strong>Alamat:</strong><br>${alamat}</p>`);
+        pw.document.close(); pw.print();
+    }
+</script>
+</body>
+</html>
