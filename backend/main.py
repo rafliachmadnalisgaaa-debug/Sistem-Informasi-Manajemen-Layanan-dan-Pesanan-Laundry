@@ -15,7 +15,7 @@ from typing import Optional
 
 # --- KONFIGURASI SUPABASE ---
 SUPABASE_URL = "https://ifvxixshzqoglosmwsmk.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmdnhpeHNoenFvZ2xvc213c21rIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzU3MTUwNywiZXhwIjoyMDk5MTQ3NTA3fQ.Zsuo-e_JM57stplUYb2tdDRqITQvqrD1MdrWinhLDWI"
+SUPABASE_KEY = ""
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # --- KONFIGURASI KEAMANAN & SMTP ---
